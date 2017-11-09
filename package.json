@@ -1,0 +1,28 @@
+{
+  "name": "adonis-auditable",
+  "version": "1.0.0",
+  "description": "",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simontong/adonis-auditable.git"
+  },
+  "keywords": [
+    "adonis",
+    "auditable",
+    "adonis-auditable"
+  ],
+  "author": "Simon Tong <simon@projectplanet.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simontong/adonis-auditable/issues"
+  },
+  "homepage": "https://github.com/simontong/adonis-auditable#readme",
+  "dependencies": {
+    "json2csv": "^3.11.5",
+    "lodash": "^4.17.4"
+  }
+}

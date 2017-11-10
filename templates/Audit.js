@@ -11,31 +11,16 @@ class Audit extends Model {
   }
 
   /**
-   * @returns {string}
+   * Auditable events
+   *
+   * @returns {Object}
    */
-  static get EVENT_CREATE () {
-    return 'create'
-  }
-
-  /**
-   * @returns {string}
-   */
-  static get EVENT_UPDATE () {
-    return 'update'
-  }
-
-  /**
-   * @returns {string}
-   */
-  static get EVENT_PATCH () {
-    return 'patch'
-  }
-
-  /**
-   * @returns {string}
-   */
-  static get EVENT_DELETE () {
-    return 'delete'
+  static get events () {
+    return Object.freeze({
+      CREATE: 'create',
+      UPDATE: 'update',
+      DELETE: 'delete',
+    })
   }
 
   /**
@@ -53,10 +38,9 @@ class Audit extends Model {
    * @returns {any}
    */
   setOldData (value) {
-    if (value !== null && typeof value === 'object') {
+    if (value !== null) {
       return JSON.stringify(value)
     }
-    return value
   }
 
   /**
@@ -74,7 +58,7 @@ class Audit extends Model {
    * @returns {any}
    */
   setNewData (value) {
-    if (value !== null && typeof value === 'object') {
+    if (value !== null) {
       return JSON.stringify(value)
     }
   }

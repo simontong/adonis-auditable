@@ -4,84 +4,131 @@ const _ = require('lodash')
 const Audit = use('App/Models/Audit')
 
 class Auditable {
-  constructor () {
-    this._oldData = {}
-  }
-
   register (Model) {
-    // Model.addHook('beforeUpdate', this._beforeUpdate.bind(this))
-    // Model.addHook('afterUpdate', this._afterUpdate.bind(this))
-    // Model.addHook('afterCreate', this._afterCreate.bind(this))
-    // Model.addHook('afterDelete', this._afterDelete.bind(this))
+    Model.createWithAudit = createWithAudit(this.ctx)
+    Model.prototype.updateWithAudit = updateWithAudit(this.ctx)
+    Model.prototype.deleteWithAudit = deleteWithAudit(this.ctx)
   }
+}
 
-  async _afterCreate (model) {
-    const event = Audit.EVENT_CREATE
-    const newModel = (await this.find(model.primaryKeyValue))
+/**
+ * Create with audit
+ *
+ * @param auth
+ * @param request
+ * @returns {*}
+ */
+function createWithAudit ({request, auth}) {
+  return async function (data) {
+    const result = await this.create(data)
+    const newModel = (await this.find(result.primaryKeyValue))
     const auditable = newModel.constructor.name
     const auditableId = newModel.id
     const newData = newModel.$attributes
 
     // save audit
-    await this._createAudit(event, auditable, auditableId, null, newData)
-  }
+    await createAudit(Audit.events.CREATE, {request, auth}, auditable, auditableId, null, newData)
 
-  _beforeUpdate (model) {
-    this._oldData[model] = model.$originalAttributes
+    return result
   }
+}
 
-  async _afterUpdate (model) {
-    const event = this.ctx.request.method() === 'PATCH' ? Audit.EVENT_PATCH : Audit.EVENT_UPDATE
-    const auditable = model.constructor.name
-    const auditableId = model.id
-    const oldData = this._oldData[model]
-    const newModel = (await this.constructor.find(model.primaryKeyValue))
+/**
+ * Update with audit
+ *
+ * @param auth
+ * @param request
+ * @returns {*}
+ */
+function updateWithAudit ({request, auth}) {
+  return async function (data, ignoreDiff = ['updated_at']) {
+    const auditable = this.constructor.name
+    const auditableId = this.id
+    const oldData = this.$originalAttributes
+    this.merge(data)
+    const result = await this.save()
+    const newModel = (await this.constructor.find(this.primaryKeyValue))
     const newData = newModel.$attributes
 
     // if new and old are equal then don't bother updating
-    // todo: do this
-    const ignoreDiff = ['updated_at']
-
     const isEqual = _.isEqual(
       _.omit(newData, ignoreDiff),
       _.omit(oldData, ignoreDiff)
     )
     if (isEqual) {
-      return
+      return result
     }
 
-    // save audit
-    await this._createAudit(event, auditable, auditableId, oldData, newData)
-  }
-
-  async _afterDelete (model) {
-    const event = Audit.EVENT_DELETE
-    const auditable = model.constructor.name
-    const auditableId = model.id
-    const oldData = model.$originalAttributes
+    // update / patch are shared
+    const event = Audit.events.UPDATE
 
     // save audit
-    await this._createAudit(event, auditable, auditableId, oldData)
-  }
+    await createAudit(event, {request, auth}, auditable, auditableId, oldData, newData)
 
-  async _createAudit (event, auditable, auditableId, oldData, newData) {
-    // get user data to store
-    const userId = _.get(this.ctx, 'auth.user.id', null)
-    const url = this.ctx.request.absoluteUrl()
-    const ip = this.ctx.request.ip()
+    return result
+  }
+}
+
+/**
+ * Delete with audit
+ *
+ * @param auth
+ * @param request
+ * @returns {*}
+ */
+function deleteWithAudit ({request, auth}) {
+  return async function () {
+    const auditable = this.constructor.name
+    const auditableId = this.id
+    const oldData = this.$originalAttributes
+    const result = await this.delete()
 
     // save audit
-    await Audit.create({
-      user_id: userId,
-      auditable_id: auditableId,
-      auditable,
-      event,
-      url,
-      ip,
-      old_data: oldData,
-      new_data: newData,
-    })
+    await createAudit(Audit.events.DELETE, {request, auth}, auditable, auditableId, oldData)
+
+    return result
   }
+}
+
+/**
+ * Run the audit
+ *
+ * @param event
+ * @param oldData
+ * @param auditable
+ * @param auditableId
+ * @param newData
+ * @param auth
+ * @param request
+ * @returns {Promise<void>}
+ */
+async function createAudit (event, {request, auth}, auditable, auditableId, oldData, newData) {
+  // check auth was passed
+  if (!auth) {
+    throw new Error('Auth param is empty')
+  }
+
+  // check request was passed
+  if (!request) {
+    throw new Error('Request param is empty')
+  }
+
+  // get user data to store
+  const userId = auth.user.id
+  const url = request.absoluteUrl()
+  const ip = request.ip()
+
+  // save audit
+  await Audit.create({
+    user_id: userId,
+    auditable_id: auditableId,
+    auditable,
+    event,
+    url,
+    ip,
+    old_data: oldData,
+    new_data: newData,
+  })
 }
 
 module.exports = Auditable

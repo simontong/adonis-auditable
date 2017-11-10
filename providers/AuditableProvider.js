@@ -2,8 +2,11 @@ const {ServiceProvider} = require('@adonisjs/fold')
 
 class AuditableProvider extends ServiceProvider {
   register () {
-    const Auditable = require('../src/Traits/Auditable')
-    this.app.bind('Adonis/Traits/Auditable', () => new Auditable)
+    this.app.singleton('Adonis/Traits/Auditable', () => {
+      // const Config = this.app.use('Adonis/Src/Config')
+      const Auditable = require('../src/Traits/Auditable')
+      return new Auditable()
+    })
     this.app.alias('Adonis/Traits/Auditable', 'Auditable')
   }
 
@@ -11,7 +14,7 @@ class AuditableProvider extends ServiceProvider {
     const Context = this.app.use('Adonis/Src/HttpContext')
     const Auditable = this.app.use('Auditable')
 
-    // add ctx to auditable
+    // add ctx to datagrid
     Context.onReady(ctx => {
       Auditable.ctx = ctx
     })

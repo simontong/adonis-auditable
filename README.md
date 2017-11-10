@@ -35,7 +35,16 @@ class MyModel extends Model {
 This you can start using as follows:
 
 ```js
+// create
 const model = await MyModel.createWithAudit({name: 'John'})
+
+// update
+const model = MyModel.find(1)
+await model.updateWithAudit({name: 'Simon'})
+
+// delete
+const model = MyModel.find(1)
+await model.deleteWithAudit()
 ```
 
 ## Built With

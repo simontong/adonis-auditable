@@ -103,18 +103,13 @@ function deleteWithAudit ({request, auth}) {
  * @returns {Promise<void>}
  */
 async function createAudit (event, {request, auth}, auditable, auditableId, oldData, newData) {
-  // check auth was passed
-  if (!auth) {
-    throw new Error('Auth param is empty')
-  }
-
   // check request was passed
   if (!request) {
     throw new Error('Request param is empty')
   }
 
   // get user data to store
-  const userId = auth.user.id
+  const userId = _.get(auth, 'user.id', null)
   const url = request.absoluteUrl()
   const ip = request.ip()
 

@@ -21,8 +21,22 @@ const providers = [
 
 ## Using the module:
 
-TODO
+Add the following to your model's `boot` method:
 
+```js
+class MyModel extends Model {
+  boot () {
+    super.boot()
+    this.addTrait('@provider:Auditable')
+  }
+}
+```
+
+This you can start using as follows:
+
+```js
+const model = await MyModel.createWithAudit({name: 'John'})
+```
 
 ## Built With
 

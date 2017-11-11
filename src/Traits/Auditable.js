@@ -5,9 +5,20 @@ const Audit = use('App/Models/Audit')
 
 class Auditable {
   register (Model) {
-    Model.createWithAudit = createWithAudit(this.ctx)
-    Model.prototype.updateWithAudit = updateWithAudit(this.ctx)
-    Model.prototype.deleteWithAudit = deleteWithAudit(this.ctx)
+    // create methods
+    Model.audit = function (ctx) {
+      return {
+        create: createWithAudit(ctx).bind(this)
+      }
+    }
+
+    // update/delete methods
+    Model.prototype.audit = function (ctx) {
+      return {
+        update: updateWithAudit(ctx).bind(this),
+        delete: deleteWithAudit(ctx).bind(this)
+      }
+    }
   }
 }
 
@@ -20,16 +31,17 @@ class Auditable {
  */
 function createWithAudit ({request, auth}) {
   return async function (data) {
-    const result = await this.create(data)
-    const newModel = (await this.find(result.primaryKeyValue))
+    const model = await this.create(data)
+    const newModel = (await this.find(model.primaryKeyValue))
     const auditable = newModel.constructor.name
     const auditableId = newModel.id
     const newData = newModel.$attributes
+    const event = Audit.events.CREATE
 
     // save audit
-    await createAudit(Audit.events.CREATE, {request, auth}, auditable, auditableId, null, newData)
+    await createAudit(event, {request, auth}, auditable, auditableId, null, newData)
 
-    return result
+    return model
   }
 }
 

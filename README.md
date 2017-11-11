@@ -36,15 +36,15 @@ This you can start using as follows:
 
 ```js
 // create
-const model = await MyModel.createWithAudit({name: 'John'})
+const model = await MyModel.audit({request,auth}).create({name: 'John'})
 
 // update
 const model = MyModel.find(1)
-await model.updateWithAudit({name: 'Simon'})
+await model.audit({request, auth}).update({name: 'Simon'})
 
 // delete
 const model = MyModel.find(1)
-await model.deleteWithAudit()
+await model.audit({request, auth}).delete()
 ```
 
 ## Built With
@@ -62,3 +62,14 @@ await model.deleteWithAudit()
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+## Changelog
+
+- v2.0.0
+  - Removed ctx injection on boot. `ctx` parameters need to be passed in manually now.
+  - Updated README to reflect new changes.
+  - Added this changelog.
+
+- v1.0.1
+  - Initial release.

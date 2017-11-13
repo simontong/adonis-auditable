@@ -24,5 +24,12 @@ class MyModel extends Model {
 This you can start using as follows:
 
 ```js
-await MyModel.createWithAudit(/** model data **/)
+// create
+await MyModel.audit().create(/** model data **/)
+
+// update
+await MyModel.audit().update(/** model data **/)
+
+// delete
+await MyModel.audit().delete()
 ```

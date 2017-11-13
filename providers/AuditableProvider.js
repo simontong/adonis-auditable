@@ -11,13 +11,13 @@ class AuditableProvider extends ServiceProvider {
   }
 
   boot () {
-    // const Context = this.app.use('Adonis/Src/HttpContext')
-    // const Auditable = this.app.use('Auditable')
-    //
-    // // add ctx to datagrid
-    // Context.onReady(ctx => {
-    //   Auditable.ctx = ctx
-    // })
+    const Context = this.app.use('Adonis/Src/HttpContext')
+    const Auditable = this.app.use('Auditable')
+
+    // add ctx to datagrid
+    Context.onReady(ctx => {
+      Auditable.ctx = ctx
+    })
   }
 }
 

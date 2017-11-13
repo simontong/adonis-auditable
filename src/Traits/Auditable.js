@@ -6,17 +6,18 @@ const Audit = use('App/Models/Audit')
 class Auditable {
   register (Model) {
     // create methods
-    Model.audit = function (ctx) {
+    const self = this
+    Model.audit = function () {
       return {
-        create: createWithAudit(ctx).bind(this)
+        create: createWithAudit(self.ctx).bind(this)
       }
     }
 
     // update/delete methods
-    Model.prototype.audit = function (ctx) {
+    Model.prototype.audit = function () {
       return {
-        update: updateWithAudit(ctx).bind(this),
-        delete: deleteWithAudit(ctx).bind(this)
+        update: updateWithAudit(self.ctx).bind(this),
+        delete: deleteWithAudit(self.ctx).bind(this)
       }
     }
   }

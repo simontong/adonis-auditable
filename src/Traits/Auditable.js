@@ -123,7 +123,7 @@ async function createAudit (event, {request, auth}, auditable, auditableId, oldD
 
   // get user data to store
   const userId = _.get(auth, 'user.id', null)
-  const url = request.absoluteUrl()
+  const url = request.originalUrl()
   const ip = request.ip()
 
   // save audit

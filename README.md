@@ -25,7 +25,7 @@ Add the following to your model's `boot` method:
 
 ```js
 class MyModel extends Model {
-  boot () {
+  static boot () {
     super.boot()
     this.addTrait('@provider:Auditable')
   }

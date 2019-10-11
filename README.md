@@ -25,7 +25,7 @@ Add the following to your model's `boot` method:
 
 ```js
 class MyModel extends Model {
-  boot () {
+  static boot () {
     super.boot()
     this.addTrait('@provider:Auditable')
   }
@@ -65,7 +65,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 
 ## Changelog
-
+- v2.0.2
+  - Fixed bugs for AdonisJS 4.1.
+  
 - v2.0.1
   - Removed need to pass in `ctx` parameters.
   - Update README and instructions.md files.
